@@ -42,22 +42,40 @@ if (Test-Path $firefoxPath) {
 }
 
 if (Test-Path $chromePath) {
-    Create-Shortcut -targetPath $chromePath -shortcutName "Chrome"
+    Create-Shortcut -targetPath $chromePath -shortcutName "Google Chrome"
 }
 
 if (Test-Path $edgePath) {
-    Create-Shortcut -targetPath $edgePath -shortcutName "Edge"
+    Create-Shortcut -targetPath $edgePath -shortcutName "Microsoft Edge"
 }
 
-# Create a shortcut to the website
+# Define the URL and file path for the shortcut
 $websiteUrl = "https://support.ultimac.ca"
 $websiteShortcutPath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), "Ultimac Support.lnk")
-if (-not (Test-Path $websiteShortcutPath)) {
-    $shell = New-Object -ComObject WScript.Shell
-    $websiteShortcut = $shell.CreateShortcut($websiteShortcutPath)
-    $websiteShortcut.TargetPath = $websiteUrl
-    $websiteShortcut.Save()
-    Write-Host "Created shortcut to Ultimac Support"
-} else {
-    Write-Host "Shortcut to Ultimac Support already exists"
+
+# Define the path and icon index
+$iconPath = "$env:SystemRoot\System32\imageres.dll"
+$iconIndex = 24
+
+# Function to create a desktop shortcut
+function Create-Shortcut {
+    param (
+        [string]$targetPath,
+        [string]$shortcutName,
+        [string]$iconFile,
+        [int]$iconIndex
+    )
+    if (-not (Test-Path $shortcutName)) {
+        $shell = New-Object -ComObject WScript.Shell
+        $shortcut = $shell.CreateShortcut($shortcutName)
+        $shortcut.TargetPath = $targetPath
+        $shortcut.IconLocation = "$iconFile,$iconIndex"
+        $shortcut.Save()
+        Write-Host "Created shortcut for $shortcutName"
+    } else {
+        Write-Host "Shortcut for $shortcutName already exists"
+    }
 }
+
+# Create a shortcut to the website if it does not already exist
+Create-Shortcut -targetPath $websiteUrl -shortcutName $websiteShortcutPath -iconFile $iconPath -iconIndex $iconIndex
